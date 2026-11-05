@@ -120,8 +120,9 @@ tr:hover td{background:#fafcfe}
       <p class="mini">A IA lê o PDF e extrai cada referência com os atributos desta taxonomia. Tudo entra como <i>Pendente</i> na aba Validação.</p>
       <div class="grade">
         <div><label>Fabricante</label><input id="iFab" placeholder="ex.: Motiva"></div>
-        <div style="grid-column:span 2"><label>URL pública do PDF ou ID do arquivo no Drive</label><input id="iUrl" placeholder="https://… ou 1AbC…"></div>
+        <div style="grid-column:span 2"><label>URL pública do PDF, link ou ID do arquivo no Drive</label><input id="iUrl" placeholder="https://… ou 1AbC…"></div>
         <div><label>Registro Anvisa (opcional)</label><select id="iReg"></select></div>
+        <div style="grid-column:1/-1"><label>Filtro (recomendado em catálogos grandes)</label><input id="iFiltro" placeholder="ex.: só implantes redondos de superfície lisa"></div>
       </div>
       <div class="acoes"><button class="btn ia" id="iEnviar">Extrair referências</button></div>
     </div>
@@ -352,8 +353,8 @@ async function importar() {
   if (!fab || !url) { toast("Preencha fabricante e o PDF."); return; }
   if (DEMO) { toast("Disponível no sistema conectado ao Apps Script (precisa da chave da API configurada)."); return; }
   const b = $("iEnviar"); b.disabled = true; b.textContent = "IA lendo o PDF… (pode levar 1-2 min)";
-  try { const r = await (await fetch(`${SCRIPT_URL}?action=extrairCatalogo&familia=${encodeURIComponent($("tFam").value)}&fabricante=${encodeURIComponent(fab)}&url=${encodeURIComponent(url)}&registro=${encodeURIComponent($("iReg").value)}`)).json();
-    toast(r.status === "ok" ? `${r.importados} referências importadas — confira em Validação.` : "Erro: " + r.mensagem); carregar();
+  try { const r = await (await fetch(`${SCRIPT_URL}?action=extrairCatalogo&familia=${encodeURIComponent($("tFam").value)}&fabricante=${encodeURIComponent(fab)}&url=${encodeURIComponent(url)}&registro=${encodeURIComponent($("iReg").value)}&filtro=${encodeURIComponent($("iFiltro").value.trim())}`)).json();
+    toast(r.status === "ok" ? `${r.importados} referências importadas${r.truncado ? " (catálogo cortado: importe o resto com outro filtro)" : ""} — confira em Validação.` : "Erro: " + r.mensagem); carregar();
   } catch (e) { toast("Falha ao importar."); } finally { b.disabled = false; b.textContent = "Extrair referências"; }
 }
 
